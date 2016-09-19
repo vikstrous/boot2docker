@@ -278,14 +278,17 @@ RUN git clone -b "$XEN_VERSION" "$XEN_REPO" /xentools \
 # Make sure that all the modules we might have added are recognized (especially VBox guest additions)
 RUN depmod -a -b $ROOTFS $KERNEL_VERSION-boot2docker
 
-COPY VERSION $ROOTFS/etc/version
-RUN cp -v $ROOTFS/etc/version /tmp/iso/version
+#COPY VERSION $ROOTFS/etc/version
+#RUN cp -v $ROOTFS/etc/version /tmp/iso/version
 
 # Get the Docker binaries with version that matches our boot2docker version.
-RUN curl -fSL -o /tmp/dockerbin.tgz https://get.docker.com/builds/Linux/x86_64/docker-$(cat $ROOTFS/etc/version).tgz && \
-    tar -zxvf /tmp/dockerbin.tgz -C "$ROOTFS/usr/local/bin" --strip-components=1 && \
-    rm /tmp/dockerbin.tgz && \
-    chroot "$ROOTFS" docker -v
+#RUN curl -fSL -o /tmp/dockerbin.tgz https://get.docker.com/builds/Linux/x86_64/docker-$(cat $ROOTFS/etc/version).tgz && \
+#    tar -zxvf /tmp/dockerbin.tgz -C "$ROOTFS/usr/local/bin" --strip-components=1 && \
+#    rm /tmp/dockerbin.tgz && \
+
+ADD ./docker/binary-daemon/* ./docker/binary-client/* /rootfs/usr/local/bin/
+
+RUN echo 1.12.1-cs1-rc1 > /rootfs/etc/version && chroot "$ROOTFS" docker -v
 
 # Copy our custom rootfs
 COPY rootfs/rootfs $ROOTFS
